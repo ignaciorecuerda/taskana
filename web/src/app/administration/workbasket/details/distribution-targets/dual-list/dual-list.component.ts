@@ -1,7 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChildren } from '@angular/core';
 import { WorkbasketSummary } from 'app/models/workbasket-summary';
 import { FilterModel } from 'app/models/filter';
-import { Side } from '../distribution-targets.component';
+import { Side, DistributionTargetsComponent } from '../distribution-targets.component';
 import { expandDown } from 'app/shared/animations/expand.animation';
 
 @Component({
@@ -13,30 +13,41 @@ import { expandDown } from 'app/shared/animations/expand.animation';
 export class DualListComponent implements OnInit {
 
 	@Input() distributionTargets: Array<WorkbasketSummary>;
-	@Output() distributionTargetsChange = new EventEmitter<Array<WorkbasketSummary>>();
 	@Input() distributionTargetsSelected: Array<WorkbasketSummary>;
 	@Output() performDualListFilter = new EventEmitter<{ filterBy: FilterModel, side: Side }>();
-	@Input() requestInProgress = false;
+  @Input() requestInProgress = false;
+  @Input() loadingItems ? = false;
 	@Input() side: Side;
-	@Input() header: string;
+  @Input() header: string;
+  @Input() heightList: number;
+  @Output() scrolling = new EventEmitter<Side>();
+
+  @ViewChildren(DistributionTargetsComponent) distributionTargetsComponent;
 
 	sideNumber = 0;
 	toggleDtl = false;
-	toolbarState = false;
-
-	constructor() { }
+  toolbarState = false;
 
 	ngOnInit() {
-		this.sideNumber = this.side === Side.LEFT ? 0 : 1;
+    this.sideNumber = this.side === Side.LEFT ? 0 : 1;
 	}
 
 	selectAll(selected: boolean) {
 		this.distributionTargets.forEach((element: any) => {
 			element.selected = selected;
 		});
-	}
+  }
+
+  onScroll() {
+    this.scrolling.emit(this.side);
+  }
 
 	performAvailableFilter(filterModel: FilterModel) {
-		this.performDualListFilter.emit({ filterBy: filterModel, side: this.side });
+    this.performDualListFilter.emit({ filterBy: filterModel, side: this.side });
+  }
+
+  changeToolbarState(state: boolean) {
+    this.toolbarState = state;
+    this.toolbarState ? this.heightList = this.heightList - 95 : this.heightList = this.heightList + 95;
   }
 }
