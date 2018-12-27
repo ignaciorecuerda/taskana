@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ReportType } from '../report/reportType';
 import { RestConnectorService } from '../services/restConnector/rest-connector.service';
 import { ReportData } from 'app/monitor/models/report-data';
+import { TaskanaDate } from 'app/shared/util/taskana.date';
 
 @Component({
   selector: 'taskana-monitor-tasks',
@@ -23,6 +24,7 @@ export class TasksComponent implements OnInit {
   ngOnInit() {
     this.restConnectorService.getTaskStatusReport().subscribe((data: ReportData) => {
       this.reportData = data;
+      if (this.reportData.meta.date) { this.reportData.meta.date = TaskanaDate.transformDateWithTimeZone(this.reportData.meta.date); }
       this.pieChartLabels = Object.keys(data.sumRow.cells);
       Object.keys(data.sumRow.cells).forEach(key => {
         this.pieChartData.push(data.sumRow.cells[key]);

@@ -81,6 +81,12 @@ export class TaskdetailsComponent implements OnInit, OnDestroy {
       this.taskService.getTask(this.currentId).subscribe(task => {
         this.requestInProgress = false;
         this.task = task;
+        if (this.task.due) { this.task.due = TaskanaDate.transformDateWithTimeZone(this.task.due); }
+        if (this.task.modified) { this.task.modified = TaskanaDate.transformDateWithTimeZone(this.task.modified); }
+        if (this.task.completed) { this.task.completed = TaskanaDate.transformDateWithTimeZone(this.task.completed); }
+        if (this.task.planned) { this.task.planned = TaskanaDate.transformDateWithTimeZone(this.task.planned); }
+        if (this.task.claimed) { this.task.claimed = TaskanaDate.transformDateWithTimeZone(this.task.claimed); }
+        if (this.task.created) { this.task.created = TaskanaDate.transformDateWithTimeZone(this.task.created); }
         this.cloneTask();
         this.taskService.selectTask(task);
       }, err => {
@@ -131,6 +137,7 @@ export class TaskdetailsComponent implements OnInit, OnDestroy {
   }
 
   private updateTask() {
+    this.changeDatesToGMT();
     this.requestInProgressService.setRequestInProgress(true);
     this.taskService.updateTask(this.task).subscribe(task => {
       this.requestInProgressService.setRequestInProgress(false);
@@ -171,6 +178,15 @@ export class TaskdetailsComponent implements OnInit, OnDestroy {
     this.taskClone.customAttributes = this.task.customAttributes.slice(0);
     this.taskClone.callbackInfo = this.task.callbackInfo.slice(0);
     this.taskClone.primaryObjRef = { ...this.task.primaryObjRef };
+  }
+
+  private changeDatesToGMT() {
+    if (this.task.created) { this.task.created = new Date(this.task.created).toISOString(); }
+    if (this.task.claimed) { this.task.claimed = new Date(this.task.claimed).toISOString(); }
+    if (this.task.completed) { this.task.completed = new Date(this.task.completed).toISOString(); }
+    if (this.task.modified) { this.task.modified = new Date(this.task.modified).toISOString(); }
+    if (this.task.planned) { this.task.planned = new Date(this.task.planned).toISOString(); }
+    if (this.task.due) { this.task.due = new Date(this.task.due).toISOString(); }
   }
 
   ngOnDestroy(): void {
