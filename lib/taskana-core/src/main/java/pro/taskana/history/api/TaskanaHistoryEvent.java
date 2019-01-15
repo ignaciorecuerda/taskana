@@ -243,4 +243,41 @@ public class TaskanaHistoryEvent {
     public void setNewData(String newData) {
         this.newData = newData;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("TaskanaHistoryEvent [id=");
+        builder.append(this.id);
+        builder.append(", businessProcessId=");
+        builder.append(this.businessProcessId);
+        builder.append(", parentBusinessProcessId=");
+        builder.append(this.parentBusinessProcessId);
+        builder.append(", taskId=");
+        builder.append(this.taskId);
+        builder.append(", eventType=");
+        builder.append(this.eventType);
+        builder.append(", created=");
+        builder.append(this.created);
+        builder.append(", userId=");
+        builder.append(this.userId);
+        builder.append(", domain=");
+        builder.append(this.domain);
+        builder.append(", workbasketKey=");
+        builder.append(this.workbasketKey);
+        builder.append(", taskClassificationKey=");
+        builder.append(this.taskClassificationKey);
+        builder.append(", attachmentClassificationKey=");
+        builder.append(this.attachmentClassificationKey);
+        builder.append(", oldValue=");
+        builder.append(this.oldValue);
+        builder.append(", newValue=");
+        builder.append(this.newValue);
+        builder.append(", oldData=");
+        builder.append(this.oldData);
+        builder.append(", newData=");
+        builder.append(this.newData);
+        builder.append("]");
+        return builder.toString();
+    }
 }

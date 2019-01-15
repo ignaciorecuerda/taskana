@@ -46,7 +46,7 @@ public class JobRunner {
                 runJobTransactionally(scheduledJob);
             }
         } catch (Exception e) {
-            LOGGER.error("Error occured whle running jobs: ", e);
+            LOGGER.error("Error occurred while running jobs: ", e);
         } finally {
             LOGGER.info("exit from runJobs().");
         }
@@ -100,7 +100,8 @@ public class JobRunner {
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.warn(
-                "Processing of job " + scheduledJob.getJobId() + " failed. Trying to split it up into two pieces...",
+                "Processing of job {} failed. Trying to split it up into two pieces...",
+                scheduledJob.getJobId(),
                 e);
         }
     }

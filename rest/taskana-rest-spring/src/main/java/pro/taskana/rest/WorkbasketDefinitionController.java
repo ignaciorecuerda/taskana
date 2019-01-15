@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,6 +40,7 @@ import pro.taskana.rest.resource.WorkbasketDefinition;
 @RestController
 @RequestMapping(path = "/v1/workbasketdefinitions", produces = {MediaType.APPLICATION_JSON_VALUE})
 public class WorkbasketDefinitionController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkbasketDefinitionController.class);
 
     @Autowired
     private WorkbasketService workbasketService;
@@ -45,10 +48,12 @@ public class WorkbasketDefinitionController {
     @GetMapping
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     public ResponseEntity<List<WorkbasketSummary>> exportWorkbaskets(@RequestParam(required = false) String domain) {
+        LOGGER.debug("Entry to exportWorkbaskets(domain= {})", domain);
         WorkbasketQuery workbasketQuery = workbasketService.createWorkbasketQuery();
         List<WorkbasketSummary> workbasketSummaryList = domain != null
             ? workbasketQuery.domainIn(domain).list()
             : workbasketQuery.list();
+        LOGGER.debug("Exit from exportWorkbaskets(), returning {}", new ResponseEntity<>(workbasketSummaryList, HttpStatus.OK));
         return new ResponseEntity<>(workbasketSummaryList, HttpStatus.OK);
     }
 
@@ -64,6 +69,7 @@ public class WorkbasketDefinitionController {
     @PostMapping
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<String> importWorkbaskets(@RequestBody List<WorkbasketDefinition> definitions) {
+        LOGGER.debug("Entry to importWorkbaskets(definitions= {})", definitions);
         try {
             // key: logical ID
             // value: system ID (in database)
@@ -116,24 +122,31 @@ public class WorkbasketDefinitionController {
                     // no verification necessary since the workbasket was already imported in step 1.
                     idConversion.get(definition.workbasket.getId()), distributionTargets);
             }
+            LOGGER.debug("Exit from importWorkbaskets(), returning {}", new ResponseEntity<>(HttpStatus.OK));
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (WorkbasketNotFoundException e) {
             TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
+            LOGGER.debug("Exit from importWorkbaskets(), returning {}", new ResponseEntity<>(HttpStatus.NOT_FOUND));
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (InvalidWorkbasketException e) {
             TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
+            LOGGER.debug("Exit from importWorkbaskets(), returning {}", new ResponseEntity<>(HttpStatus.BAD_REQUEST));
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         } catch (NotAuthorizedException e) {
             TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
+            LOGGER.debug("Exit from importWorkbaskets(), returning {}", new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         } catch (InvalidArgumentException e) {
             TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
+            LOGGER.debug("Exit from importWorkbaskets(), returning {}", new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED));
             return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
         } catch (WorkbasketAlreadyExistException e) {
             TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
+            LOGGER.debug("Exit from importWorkbaskets(), returning {}", new ResponseEntity<>(HttpStatus.CONFLICT));
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         } catch (DomainNotFoundException e) {
             TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
+            LOGGER.debug("Exit from importWorkbaskets(), returning {}", new ResponseEntity<>(HttpStatus.BAD_REQUEST));
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }

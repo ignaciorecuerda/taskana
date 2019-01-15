@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
@@ -19,6 +21,7 @@ import pro.taskana.exceptions.InvalidArgumentException;
  */
 @Component
 public class TaskFilter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskFilter.class);
 
     private static final String CLASSIFICATION = "classification";
     private static final String POR = "por";
@@ -56,6 +59,7 @@ public class TaskFilter {
 
     public List<TaskSummary> inspectParams(MultiValueMap<String, String> params)
         throws InvalidArgumentException {
+        LOGGER.debug("Entry to inspectParams(params= {})", params);
         TaskQuery taskQuery = taskService.createTaskQuery();
 
         // apply filters
@@ -116,6 +120,8 @@ public class TaskFilter {
         if (params.containsKey(IS_TRANSFERRED)) {
             taskQuery.transferredEquals(Boolean.getBoolean(params.get(IS_TRANSFERRED).get(0)));
         }
+
+        LOGGER.debug("Exit from inspectParams(), returning {}", taskQuery.list());
         return taskQuery.list();
     }
 
@@ -134,6 +140,7 @@ public class TaskFilter {
     }
 
     private TaskState[] extractStates(MultiValueMap<String, String> params) throws InvalidArgumentException {
+        LOGGER.debug("Entry to extractStates(params= {})", params);
         List<TaskState> states = new ArrayList<>();
         for (String item : params.get(STATE)) {
             for (String state : item.split(COMMA)) {
@@ -152,6 +159,7 @@ public class TaskFilter {
                 }
             }
         }
+        LOGGER.debug("Exit from extractStates()");
         return states.toArray(new TaskState[0]);
     }
 }

@@ -412,7 +412,7 @@ public class TaskServiceImpl implements TaskService {
         List<String> taskIds) throws NotAuthorizedException, InvalidArgumentException, WorkbasketNotFoundException {
         try {
             taskanaEngine.openConnection();
-            LOGGER.debug("entry to transferBulk(targetWbId = {}, taskIds = {})", destinationWorkbasketId, taskIds);
+            LOGGER.debug("entry to transferTasks(targetWbId = {}, taskIds = {})", destinationWorkbasketId, taskIds);
             // Check pre-conditions with trowing Exceptions
             if (destinationWorkbasketId == null || destinationWorkbasketId.isEmpty()) {
                 throw new InvalidArgumentException(
@@ -422,7 +422,7 @@ public class TaskServiceImpl implements TaskService {
 
             return transferTasks(taskIds, destinationWorkbasket);
         } finally {
-            LOGGER.debug("exit from transferBulk(targetWbKey = {}, taskIds = {})", destinationWorkbasketId, taskIds);
+            LOGGER.debug("exit from transferTasks(targetWbKey = {}, taskIds = {})", destinationWorkbasketId, taskIds);
             taskanaEngine.returnConnection();
         }
     }
@@ -433,7 +433,7 @@ public class TaskServiceImpl implements TaskService {
         throws NotAuthorizedException, InvalidArgumentException, WorkbasketNotFoundException {
         try {
             taskanaEngine.openConnection();
-            LOGGER.debug("entry to transferBulk(targetWbKey = {}, domain = {}, taskIds = {})", destinationWorkbasketKey,
+            LOGGER.debug("entry to transferTasks(targetWbKey = {}, domain = {}, taskIds = {})", destinationWorkbasketKey,
                 destinationWorkbasketDomain, taskIds);
             // Check pre-conditions with trowing Exceptions
             if (destinationWorkbasketKey == null || destinationWorkbasketDomain == null) {
@@ -445,7 +445,7 @@ public class TaskServiceImpl implements TaskService {
 
             return transferTasks(taskIds, destinationWorkbasket);
         } finally {
-            LOGGER.debug("exit from transferBulk(targetWbKey = {}, taskIds = {})", destinationWorkbasketKey,
+            LOGGER.debug("exit from transferTasks(targetWbKey = {}, taskIds = {})", destinationWorkbasketKey,
                 destinationWorkbasketDomain, taskIds);
             taskanaEngine.returnConnection();
         }
@@ -486,11 +486,13 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Task newTask(String workbasketKey, String domain) {
+        LOGGER.debug("entry to newTask(workbasketKey = {}, domain = {})", workbasketKey, domain);
         TaskImpl task = new TaskImpl();
         WorkbasketSummaryImpl wb = new WorkbasketSummaryImpl();
         wb.setKey(workbasketKey);
         wb.setDomain(domain);
         task.setWorkbasketSummary(wb);
+        LOGGER.debug("exit from newTask(), returning {}", task);
         return task;
     }
 
@@ -547,6 +549,7 @@ public class TaskServiceImpl implements TaskService {
 
     private void removeSingleTask(BulkOperationResults<String, TaskanaException> bulkLog,
         List<MinimalTaskSummary> taskSummaries, Iterator<String> taskIdIterator) {
+        LOGGER.debug("entry to removeSingleTask()");
         String currentTaskId = taskIdIterator.next();
         if (currentTaskId == null || currentTaskId.equals("")) {
             bulkLog.addError("",
@@ -568,6 +571,7 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
         }
+        LOGGER.debug("exit from removeSingleTask()");
     }
 
     @Override
@@ -602,7 +606,6 @@ public class TaskServiceImpl implements TaskService {
             LOGGER.debug("exit from updateTasks().");
             taskanaEngine.returnConnection();
         }
-
     }
 
     @Override
@@ -665,6 +668,7 @@ public class TaskServiceImpl implements TaskService {
 
     private void standardSettings(TaskImpl task, Classification classification,
         PrioDurationHolder prioDurationFromAttachments) {
+        LOGGER.debug("entry to standardSettings()");
         Instant now = Instant.now();
         task.setId(IdGenerator.generateWithPrefix(ID_PREFIX_TASK));
         if (task.getExternalId() == null) {
@@ -708,10 +712,12 @@ public class TaskServiceImpl implements TaskService {
                 attachmentMapper.insert(attachmentImpl);
             }
         }
+        LOGGER.debug("exit from standardSettings()");
     }
 
     private void processStandardSettingsForConfiguration(TaskImpl task, Classification classification,
         PrioDurationHolder prioDurationFromAttachments) {
+        LOGGER.debug("entry to processStandardSettingsForConfiguration()");
         if (classification != null) {
             PrioDurationHolder finalPrioDuration = getNewPrioDuration(prioDurationFromAttachments,
                 classification.getPriority(), classification.getServiceLevel());
@@ -732,12 +738,13 @@ public class TaskServiceImpl implements TaskService {
         if (task.getDescription() == null && classification != null) {
             task.setDescription(classification.getDescription());
         }
+        LOGGER.debug("exit from processStandardSettingsForConfiguration()");
     }
 
     private BulkOperationResults<String, TaskanaException> transferTasks(List<String> taskIdsToBeTransferred,
         Workbasket destinationWorkbasket)
         throws InvalidArgumentException, WorkbasketNotFoundException, NotAuthorizedException {
-
+        LOGGER.debug("entry to transferTasks(taskIdsToBeTransferred = {}, destinationWorkbasket = {})", LoggerUtils.listToString(taskIdsToBeTransferred), destinationWorkbasket);
         workbasketService.checkAuthorization(destinationWorkbasket.getId(), WorkbasketPermission.APPEND);
 
         if (taskIdsToBeTransferred == null) {
@@ -759,11 +766,13 @@ public class TaskServiceImpl implements TaskService {
         }
         checkIfTransferConditionsAreFulfilled(taskIds, taskSummaries, bulkLog);
         updateTasksToBeTransferred(taskIds, taskSummaries, destinationWorkbasket);
+        LOGGER.debug("exit from transferTasks(), returning {}", bulkLog);
         return bulkLog;
     }
 
     private void removeNonExistingTasksFromTaskIdList(List<String> taskIds,
         BulkOperationResults<String, TaskanaException> bulkLog) {
+        LOGGER.debug("entry to removeNonExistingTasksFromTaskIdList(targetWbId = {}, taskIds = {})", taskIds, bulkLog);
         Iterator<String> taskIdIterator = taskIds.iterator();
         while (taskIdIterator.hasNext()) {
             String currentTaskId = taskIdIterator.next();
@@ -773,10 +782,13 @@ public class TaskServiceImpl implements TaskService {
                 taskIdIterator.remove();
             }
         }
+        LOGGER.debug("exit from removeNonExistingTasksFromTaskIdList()");
     }
 
     private void checkIfTransferConditionsAreFulfilled(List<String> taskIds, List<MinimalTaskSummary> taskSummaries,
         BulkOperationResults<String, TaskanaException> bulkLog) {
+        LOGGER.debug("entry to checkIfTransferConditionsAreFulfilled(taskIds = {}, taskSummaries = {}, bulkLog = {})",
+            LoggerUtils.listToString(taskIds), LoggerUtils.listToString(taskSummaries), bulkLog);
         Set<String> workbasketIds = new HashSet<>();
         taskSummaries.forEach(t -> workbasketIds.add(t.getWorkbasketId()));
         WorkbasketQueryImpl query = (WorkbasketQueryImpl) workbasketService.createWorkbasketQuery();
@@ -791,10 +803,13 @@ public class TaskServiceImpl implements TaskService {
                 .list();
         }
         checkIfTasksMatchTransferCriteria(taskIds, taskSummaries, sourceWorkbaskets, bulkLog);
+        LOGGER.debug("exit from checkIfTransferConditionsAreFulfilled()");
     }
 
     private void checkIfTasksMatchTransferCriteria(List<String> taskIds, List<MinimalTaskSummary> taskSummaries,
         List<WorkbasketSummary> sourceWorkbaskets, BulkOperationResults<String, TaskanaException> bulkLog) {
+        LOGGER.debug("entry to checkIfTasksMatchTransferCriteria(taskIds = {}, taskSummaries = {}, sourceWorkbaskets = {}, bulkLog = {})",
+            LoggerUtils.listToString(taskIds), LoggerUtils.listToString(taskSummaries), LoggerUtils.listToString(sourceWorkbaskets), bulkLog);
         Iterator<String> taskIdIterator = taskIds.iterator();
         while (taskIdIterator.hasNext()) {
             String currentTaskId = taskIdIterator.next();
@@ -818,10 +833,13 @@ public class TaskServiceImpl implements TaskService {
                 taskIdIterator.remove();
             }
         }
+        LOGGER.debug("exit from checkIfTasksMatchTransferCriteria()");
     }
 
     private void checkIfTasksMatchCompleteCriteria(List<String> taskIds, List<TaskSummary> taskSummaries,
         BulkOperationResults<String, TaskanaException> bulkLog) {
+        LOGGER.debug("entry to checkIfTasksMatchCompleteCriteria(taskIds = {}, taskSummaries = {}, bulkLog = {})",
+            LoggerUtils.listToString(taskIds), LoggerUtils.listToString(taskSummaries), bulkLog);
         Instant now = Instant.now();
         Iterator<String> taskIdIterator = taskIds.iterator();
         while (taskIdIterator.hasNext()) {
@@ -848,11 +866,13 @@ public class TaskServiceImpl implements TaskService {
                 taskSummary.setState(TaskState.COMPLETED);
             }
         }
+        LOGGER.debug("exit from checkIfTasksMatchCompleteCriteria()");
     }
 
     private void updateTasksToBeTransferred(List<String> taskIds,
         List<MinimalTaskSummary> taskSummaries, Workbasket destinationWorkbasket) {
-
+        LOGGER.debug("entry to updateTasksToBeTransferred(taskIds = {}, taskSummaries = {})",
+            LoggerUtils.listToString(taskIds), LoggerUtils.listToString(taskSummaries), destinationWorkbasket);
         taskSummaries = taskSummaries.stream()
             .filter(ts -> taskIds.contains(ts.getTaskId()))
             .collect(
@@ -872,17 +892,19 @@ public class TaskServiceImpl implements TaskService {
                 createTasksTransferredEvents(taskSummaries, updateObject);
             }
         }
-
+        LOGGER.debug("exit from updateTasksToBeTransferred()");
     }
 
     private void updateTasksToBeCompleted(List<String> taskIds,
         List<TaskSummary> taskSummaries) {
+        LOGGER.debug("entry to updateTasksToBeCompleted(taskIds = {}, taskSummaries = {})", LoggerUtils.listToString(taskIds), LoggerUtils.listToString(taskSummaries));
         if (!taskIds.isEmpty() && !taskSummaries.isEmpty()) {
             taskMapper.updateCompleted(taskIds, (TaskSummaryImpl) taskSummaries.get(0));
             if (HistoryEventProducer.isHistoryEnabled()) {
                 createTasksCompletedEvents(taskSummaries);
             }
         }
+        LOGGER.debug("exit from updateTasksToBeCompleted()");
     }
 
     private Task cancelClaim(String taskId, boolean forceUnclaim)
@@ -922,7 +944,9 @@ public class TaskServiceImpl implements TaskService {
 
     private void addClassificationSummariesToTaskSummaries(List<TaskSummaryImpl> tasks,
         List<ClassificationSummary> classifications) {
+        LOGGER.debug("entry to addClassificationSummariesToTaskSummaries(tasks = {}, classifications = {})", LoggerUtils.listToString(tasks), LoggerUtils.listToString(classifications));
         if (tasks == null || tasks.isEmpty()) {
+            LOGGER.debug("exit from addClassificationSummariesToTaskSummaries()");
             return;
         }
         // assign query results to appropriate tasks.
@@ -940,11 +964,12 @@ public class TaskServiceImpl implements TaskService {
             // set the classification on the task object
             task.setClassificationSummary(aClassification);
         }
+        LOGGER.debug("exit from addClassificationSummariesToTaskSummaries()");
     }
 
     private List<ClassificationSummary> findClassificationsForTasksAndAttachments(
         List<TaskSummaryImpl> taskSummaries, List<AttachmentSummaryImpl> attachmentSummaries) {
-        LOGGER.debug("entry to getClassificationsForTasksAndAttachments()");
+        LOGGER.debug("entry to findClassificationsForTasksAndAttachments()");
         if (taskSummaries == null || taskSummaries.isEmpty()) {
             return new ArrayList<>();
         }
@@ -959,21 +984,21 @@ public class TaskServiceImpl implements TaskService {
                 classificationIdSet.add(att.getClassificationSummary().getId());
             }
         }
+        LOGGER.debug("exit from findClassificationsForTasksAndAttachments()");
         return queryClassificationsForTasksAndAttachments(classificationIdSet);
     }
 
     private List<ClassificationSummary> findClassificationForTaskImplAndAttachments(TaskImpl task,
         List<AttachmentImpl> attachmentImpls) {
-
+        LOGGER.debug("entry to transferBulk()");
         Set<String> classificationIdSet = new HashSet<>(Arrays.asList(task.getClassificationSummary().getId()));
         if (attachmentImpls != null && !attachmentImpls.isEmpty()) {
             for (AttachmentImpl att : attachmentImpls) {
                 classificationIdSet.add(att.getClassificationSummary().getId());
             }
         }
-
+        LOGGER.debug("exit from findClassificationForTaskImplAndAttachments()");
         return queryClassificationsForTasksAndAttachments(classificationIdSet);
-
     }
 
     private List<ClassificationSummary> queryClassificationsForTasksAndAttachments(Set<String> classificationIdSet) {
@@ -1027,6 +1052,8 @@ public class TaskServiceImpl implements TaskService {
 
     private void addAttachmentSummariesToTaskSummaries(List<TaskSummaryImpl> taskSummaries,
         List<AttachmentSummaryImpl> attachmentSummaries, List<ClassificationSummary> classifications) {
+        LOGGER.debug("entry to addAttachmentSummariesToTaskSummaries(taskSummaries = {}, attachmentSummaries = {}, classifications = {})",
+            LoggerUtils.listToString(taskSummaries), LoggerUtils.listToString(attachmentSummaries), LoggerUtils.listToString(classifications));
         if (taskSummaries == null || taskSummaries.isEmpty()) {
             return;
         }
@@ -1045,13 +1072,16 @@ public class TaskServiceImpl implements TaskService {
             }
         }
 
+        LOGGER.debug("exit from addAttachmentSummariesToTaskSummaries()");
     }
 
     private void addClassificationSummariesToAttachmentSummaries(List<AttachmentSummaryImpl> attachmentSummaries,
         List<TaskSummaryImpl> taskSummaries, List<ClassificationSummary> classifications) {
+        LOGGER.debug("entry to addClassificationSummariesToAttachmentSummaries()");
         // prereq: in each attachmentSummary, the classificationSummary.key property is set.
         if (attachmentSummaries == null || attachmentSummaries.isEmpty() || taskSummaries == null
             || taskSummaries.isEmpty()) {
+            LOGGER.debug("exit from addClassificationSummariesToAttachmentSummaries()");
             return;
         }
         // iterate over all attachment summaries an add the appropriate classification summary to each
@@ -1066,11 +1096,15 @@ public class TaskServiceImpl implements TaskService {
             }
             att.setClassificationSummary(aClassification);
         }
+        LOGGER.debug("exit from addClassificationSummariesToAttachmentSummaries()");
     }
 
     private List<Attachment> addClassificationSummariesToAttachments(List<AttachmentImpl> attachmentImpls,
         List<ClassificationSummary> classifications) {
+        LOGGER.debug("entry to addClassificationSummariesToAttachments(targetWbId = {}, taskIds = {})",
+            LoggerUtils.listToString(attachmentImpls), LoggerUtils.listToString(classifications));
         if (attachmentImpls == null || attachmentImpls.isEmpty()) {
+            LOGGER.debug("exit from addClassificationSummariesToAttachments()");
             return new ArrayList<>();
         }
 
@@ -1088,11 +1122,13 @@ public class TaskServiceImpl implements TaskService {
             att.setClassificationSummary(aClassification);
             result.add(att);
         }
+        LOGGER.debug("exit from addClassificationSummariesToAttachments(), returning {}", result);
         return result;
     }
 
     private TaskImpl initUpdatedTask(Map<String, String> customFieldsToUpdate, CustomPropertySelector fieldSelector)
         throws InvalidArgumentException {
+        LOGGER.debug("entry to initUpdatedTask(customFieldsToUpdate = {}, fieldSelector = {})", LoggerUtils.mapToString(customFieldsToUpdate), fieldSelector);
         TaskImpl newTask = new TaskImpl();
         newTask.setModified(Instant.now());
 
@@ -1101,10 +1137,12 @@ public class TaskServiceImpl implements TaskService {
             fieldSelector.setCustomProperty(key, true);
             newTask.setCustomAttribute(key, entry.getValue());
         }
+        LOGGER.debug("exit from initUpdatedTask(), returning {}", newTask);
         return newTask;
     }
 
     private void validateCustomFields(Map<String, String> customFieldsToUpdate) throws InvalidArgumentException {
+        LOGGER.debug("entry to validateCustomFields(customFieldsToUpdate = {}, taskIds = {})", LoggerUtils.mapToString(customFieldsToUpdate));
         if (customFieldsToUpdate == null || customFieldsToUpdate.isEmpty()) {
             throw new InvalidArgumentException("The customFieldsToUpdate argument to updateTasks must not be empty.");
         }
@@ -1116,6 +1154,7 @@ public class TaskServiceImpl implements TaskService {
                     "The customFieldsToUpdate argument to updateTasks contains invalid key " + key);
             }
         }
+        LOGGER.debug("exit from validateCustomFields()");
     }
 
     private List<TaskSummary> getTasksToChange(List<String> taskIds) {
@@ -1136,6 +1175,7 @@ public class TaskServiceImpl implements TaskService {
 
     private void validateObjectReference(ObjectReference objRef, String objRefType, String objName)
         throws InvalidArgumentException {
+        LOGGER.debug("entry to validateObjectReference()");
         // check that all values in the ObjectReference are set correctly
         if (objRef == null) {
             throw new InvalidArgumentException(objRefType + " of " + objName + " must not be null");
@@ -1153,9 +1193,11 @@ public class TaskServiceImpl implements TaskService {
         } else if (objRef.getValue() == null || objRef.getValue().length() == 0) {
             throw new InvalidArgumentException("Value of" + objRefType + " of " + objName + MUST_NOT_BE_EMPTY);
         }
+        LOGGER.debug("exit from validateObjectReference()");
     }
 
     private PrioDurationHolder handleAttachments(TaskImpl task) throws InvalidArgumentException {
+        LOGGER.debug("entry to handleAttachments(task = {})", task);
         List<Attachment> attachments = task.getAttachments();
         if (attachments == null || attachments.isEmpty()) {
             return new PrioDurationHolder(null, Integer.MIN_VALUE);
@@ -1176,6 +1218,7 @@ public class TaskServiceImpl implements TaskService {
             actualPrioDuration.setDuration(null);
         }
 
+        LOGGER.debug("exit from handleAttachments(), returning {}", actualPrioDuration);
         return actualPrioDuration;
     }
 
@@ -1233,6 +1276,7 @@ public class TaskServiceImpl implements TaskService {
     private void updateClassificationRelatedProperties(TaskImpl oldTaskImpl, TaskImpl newTaskImpl,
         PrioDurationHolder prioDurationFromAttachments)
         throws ClassificationNotFoundException {
+        LOGGER.debug("entry to updateClassificationRelatedProperties()");
         // insert Classification specifications if Classification is given.
         ClassificationSummary oldClassificationSummary = oldTaskImpl.getClassificationSummary();
         ClassificationSummary newClassificationSummary = newTaskImpl.getClassificationSummary();
@@ -1248,11 +1292,13 @@ public class TaskServiceImpl implements TaskService {
 
         }
 
+        LOGGER.debug("exit from updateClassificationRelatedProperties()");
     }
 
     private void updateTaskPrioDurationFromClassification(TaskImpl newTaskImpl,
         PrioDurationHolder prioDurationFromAttachments, ClassificationSummary oldClassificationSummary,
         ClassificationSummary newClassificationSummary) throws ClassificationNotFoundException {
+        LOGGER.debug("entry to updateTaskPrioDurationFromClassification()");
         Classification newClassification = null;
         if (!oldClassificationSummary.getKey().equals(newClassificationSummary.getKey())) {
             newClassification = this.classificationService
@@ -1289,11 +1335,12 @@ public class TaskServiceImpl implements TaskService {
 
         int newPriority = Math.max(newClassificationSummary.getPriority(), prioDurationFromAttachments.getPrio());
         newTaskImpl.setPriority(newPriority);
+        LOGGER.debug("exit from updateTaskPrioDurationFromClassification()");
     }
 
     private PrioDurationHolder handleAttachmentsOnTaskUpdate(TaskImpl oldTaskImpl, TaskImpl newTaskImpl)
         throws AttachmentPersistenceException {
-
+        LOGGER.debug("entry to handleAttachmentsOnTaskUpdate(oldTaskImpl = {}, newTaskImpl = {})", oldTaskImpl, newTaskImpl);
         PrioDurationHolder prioDuration = new PrioDurationHolder(MAX_DURATION, Integer.MIN_VALUE);
 
         // Iterator for removing invalid current values directly. OldAttachments can be ignored.
@@ -1312,10 +1359,13 @@ public class TaskServiceImpl implements TaskService {
         if (MAX_DURATION.equals(prioDuration.getDuration())) {
             prioDuration.setDuration(null);
         }
+
+        LOGGER.debug("exit from handleAttachmentsOnTaskUpdate()");
         return prioDuration;
     }
 
     private void deleteAttachmentOnTaskUpdate(TaskImpl oldTaskImpl, TaskImpl newTaskImpl) {
+        LOGGER.debug("entry to deleteAttachmentOnTaskUpdate(oldTaskImpl = {}, newTaskImpl = {})", oldTaskImpl, newTaskImpl);
         for (Attachment oldAttachment : oldTaskImpl.getAttachments()) {
             if (oldAttachment != null) {
                 boolean isRepresented = false;
@@ -1333,10 +1383,12 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
         }
+        LOGGER.debug("exit from deleteAttachmentOnTaskUpdate()");
     }
 
     private PrioDurationHolder handlePrioDurationOfOneAttachmentOnTaskUpdate(TaskImpl oldTaskImpl, TaskImpl newTaskImpl,
         PrioDurationHolder prioDuration, Attachment attachment) throws AttachmentPersistenceException {
+        LOGGER.debug("entry to handlePrioDurationOfOneAttachmentOnTaskUpdate()");
         boolean wasAlreadyPresent = false;
         if (attachment.getId() != null) {
             for (Attachment oldAttachment : oldTaskImpl.getAttachments()) {
@@ -1357,11 +1409,14 @@ public class TaskServiceImpl implements TaskService {
             prioDuration = handleNewAttachmentOnTaskUpdate(newTaskImpl, prioDuration, attachment);
 
         }
+
+        LOGGER.debug("exit from handlePrioDurationOfOneAttachmentOnTaskUpdate(), returning {}", prioDuration);
         return prioDuration;
     }
 
     private PrioDurationHolder handlePrioDurationOfOneNewAttachmentOnTaskUpdate(TaskImpl newTaskImpl,
         PrioDurationHolder prioDuration, Attachment attachment) {
+        LOGGER.debug("entry to handlePrioDurationOfOneNewAttachmentOnTaskUpdate()");
         AttachmentImpl temp = (AttachmentImpl) attachment;
 
         ClassificationSummary classification = attachment.getClassificationSummary();
@@ -1375,11 +1430,13 @@ public class TaskServiceImpl implements TaskService {
         LOGGER.debug("TaskService.updateTask() for TaskId={} UPDATED an Attachment={}.",
             newTaskImpl.getId(),
             attachment);
+        LOGGER.debug("exit from handlePrioDurationOfOneNewAttachmentOnTaskUpdate(), returning {}", prioDuration);
         return prioDuration;
     }
 
     private PrioDurationHolder handleNewAttachmentOnTaskUpdate(TaskImpl newTaskImpl, PrioDurationHolder prioDuration,
         Attachment attachment) throws AttachmentPersistenceException {
+        LOGGER.debug("entry to handleNewAttachmentOnTaskUpdate()");
         AttachmentImpl attachmentImpl = (AttachmentImpl) attachment;
         initAttachment(attachmentImpl, newTaskImpl);
         ClassificationSummary classification = attachment.getClassificationSummary();
@@ -1399,11 +1456,12 @@ public class TaskServiceImpl implements TaskService {
                     + newTaskImpl.getId() + " because it already exists.",
                 e.getCause());
         }
+        LOGGER.debug("exit from handleNewAttachmentOnTaskUpdate(), returning {}", prioDuration);
         return prioDuration;
     }
 
     private PrioDurationHolder handleAttachmentsOnClassificationUpdate(Task task) {
-
+        LOGGER.debug("entry to handleAttachmentsOnClassificationUpdate(task = {})", task);
         PrioDurationHolder prioDuration = new PrioDurationHolder(MAX_DURATION, Integer.MIN_VALUE);
 
         // Iterator for removing invalid current values directly. OldAttachments can be ignored.
@@ -1422,11 +1480,15 @@ public class TaskServiceImpl implements TaskService {
         if (MAX_DURATION.equals(prioDuration.getDuration())) {
             prioDuration.setDuration(null);
         }
+
+        LOGGER.debug("exit from handleAttachmentsOnClassificationUpdate(), returning {}", prioDuration);
         return prioDuration;
      }
 
     private PrioDurationHolder getNewPrioDuration(PrioDurationHolder prioDurationHolder, int prioFromClassification,
         String serviceLevelFromClassification) {
+        LOGGER.debug("entry to getNewPrioDuration(prioDurationHolder = {}, prioFromClassification = {}, serviceLevelFromClassification = {})",
+            prioDurationHolder, prioFromClassification, serviceLevelFromClassification);
         Duration minDuration = prioDurationHolder.getDuration();
         int maxPrio = prioDurationHolder.getPrio();
 
@@ -1444,10 +1506,12 @@ public class TaskServiceImpl implements TaskService {
             maxPrio = prioFromClassification;
         }
 
+        LOGGER.debug("exit from getNewPrioDuration(), returning {}", new PrioDurationHolder(minDuration, maxPrio));
         return new PrioDurationHolder(minDuration, maxPrio);
     }
 
     private void initAttachment(AttachmentImpl attachment, Task newTask) {
+        LOGGER.debug("entry to initAttachment()");
         if (attachment.getId() == null) {
             attachment.setId(IdGenerator.generateWithPrefix(ID_PREFIX_ATTACHMENT));
         }
@@ -1460,9 +1524,11 @@ public class TaskServiceImpl implements TaskService {
         if (attachment.getTaskId() == null) {
             attachment.setTaskId(newTask.getId());
         }
+        LOGGER.debug("exit from initAttachment()");
     }
 
     public Set<String> findTasksIdsAffectedByClassificationChange(String classificationId) {
+        LOGGER.debug("entry to findTasksIdsAffectedByClassificationChange(classificationId = {})", classificationId);
         // tasks directly affected
         List<TaskSummary> tasks = createTaskQuery()
             .classificationIdIn(classificationId)
@@ -1484,6 +1550,7 @@ public class TaskServiceImpl implements TaskService {
             LOGGER.debug("the following tasks are affected by the update of classification {} : {}", classificationId,
                 LoggerUtils.setToString(affectedTaskIds));
         }
+        LOGGER.debug("exit from findTasksIdsAffectedByClassificationChange(). ");
         return affectedTaskIds;
     }
 
@@ -1525,6 +1592,7 @@ public class TaskServiceImpl implements TaskService {
 
     private void updatePrioDueDateOnClassificationUpdate(TaskImpl task,
         PrioDurationHolder prioDurationFromAttachments) {
+        LOGGER.debug("entry to updatePrioDueDateOnClassificationUpdate()");
         ClassificationSummary classificationSummary = task.getClassificationSummary();
 
         if (classificationSummary == null) { // classification is null -> take prio and duration from attachments
@@ -1534,10 +1602,12 @@ public class TaskServiceImpl implements TaskService {
                 classificationSummary);
         }
 
+        LOGGER.debug("exit from updatePrioDueDateOnClassificationUpdate()");
     }
 
     private void updateTaskPrioDurationFromClassificationAndAttachments(TaskImpl task,
         PrioDurationHolder prioDurationFromAttachments, ClassificationSummary classificationSummary) {
+        LOGGER.debug("entry to updateTaskPrioDurationFromClassificationAndAttachments()");
         if (classificationSummary.getServiceLevel() != null) {
             Duration durationFromClassification = Duration.parse(classificationSummary.getServiceLevel());
             Duration minDuration = prioDurationFromAttachments.getDuration();
@@ -1557,6 +1627,7 @@ public class TaskServiceImpl implements TaskService {
 
         int newPriority = Math.max(classificationSummary.getPriority(), prioDurationFromAttachments.getPrio());
         task.setPriority(newPriority);
+        LOGGER.debug("exit from updateTaskPrioDurationFromClassificationAndAttachments()");
     }
 
     private Task completeTask(String taskId, boolean isForced)
@@ -1638,6 +1709,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private void updateTaskPrioDurationFromAttachments(TaskImpl task, PrioDurationHolder prioDurationFromAttachments) {
+        LOGGER.debug("entry to updateTaskPrioDurationFromAttachments()");
         if (prioDurationFromAttachments.getDuration() != null) {
             long days = converter.convertWorkingDaysToDays(task.getPlanned(),
                 prioDurationFromAttachments.getDuration().toDays());
@@ -1647,10 +1719,12 @@ public class TaskServiceImpl implements TaskService {
         if (prioDurationFromAttachments.getPrio() > Integer.MIN_VALUE) {
             task.setPriority(prioDurationFromAttachments.getPrio());
         }
+        LOGGER.debug("exit from updateTaskPrioDurationFromAttachments()");
     }
 
     private List<Attachment> augmentAttachmentsByClassification(List<AttachmentImpl> attachmentImpls,
         BulkOperationResults<String, Exception> bulkLog) {
+        LOGGER.debug("entry to augmentAttachmentsByClassification()");
         List<Attachment> result = new ArrayList<>();
         if (attachmentImpls == null || attachmentImpls.isEmpty()) {
             return result;
@@ -1678,6 +1752,7 @@ public class TaskServiceImpl implements TaskService {
             }
         }
 
+        LOGGER.debug("exit from augmentAttachmentsByClassification()");
         return result;
     }
 
@@ -1728,7 +1803,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     List<TaskSummary> augmentTaskSummariesByContainedSummaries(List<TaskSummaryImpl> taskSummaries) {
-        LOGGER.debug("entry to augmentTaskSummariesByContainedSummaries()");
+        LOGGER.debug("entry to augmentTaskSummariesByContainedSummaries(taskSummaries= {})", LoggerUtils.listToString(taskSummaries));
         List<TaskSummary> result = new ArrayList<>();
         if (taskSummaries == null || taskSummaries.isEmpty()) {
             return result;

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.PagedResources.PageMetadata;
@@ -57,6 +59,7 @@ import pro.taskana.rest.resource.WorkbasketSummaryResourcesAssembler;
 @EnableHypermediaSupport(type = HypermediaType.HAL)
 @RequestMapping(path = "/v1/workbaskets", produces = "application/hal+json")
 public class WorkbasketController extends AbstractPagingController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkbasketController.class);
 
     private static final String LIKE = "%";
     private static final String NAME = "name";
@@ -99,7 +102,7 @@ public class WorkbasketController extends AbstractPagingController {
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     public ResponseEntity<PagedResources<WorkbasketSummaryResource>> getWorkbaskets(
         @RequestParam MultiValueMap<String, String> params) throws InvalidArgumentException {
-
+        LOGGER.debug("Entry to getWorkbaskets(params= {})", params);
         WorkbasketQuery query = workbasketService.createWorkbasketQuery();
         query = applySortingParams(query, params);
         query = applyFilterParams(query, params);
@@ -128,6 +131,7 @@ public class WorkbasketController extends AbstractPagingController {
         PagedResources<WorkbasketSummaryResource> pagedResources = assembler.toResources(workbasketSummaries,
             pageMetadata);
 
+        LOGGER.debug("Exit from getWorkbaskets(), returning {}", new ResponseEntity<>(pagedResources, HttpStatus.OK));
         return new ResponseEntity<>(pagedResources, HttpStatus.OK);
     }
 
@@ -135,9 +139,11 @@ public class WorkbasketController extends AbstractPagingController {
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     public ResponseEntity<WorkbasketResource> getWorkbasket(@PathVariable(value = "workbasketId") String workbasketId)
         throws WorkbasketNotFoundException, NotAuthorizedException {
+        LOGGER.debug("Entry to getWorkbasket(workbasketId= {})", workbasketId);
         ResponseEntity<WorkbasketResource> result;
         Workbasket workbasket = workbasketService.getWorkbasket(workbasketId);
         result = new ResponseEntity<>(workbasketResourceAssembler.toResource(workbasket), HttpStatus.OK);
+        LOGGER.debug("Exit from getWorkbasket(), returning {}", result);
         return result;
     }
 
@@ -146,6 +152,8 @@ public class WorkbasketController extends AbstractPagingController {
     public ResponseEntity<?> markWorkbasketForDeletion(@PathVariable(value = "workbasketId") String workbasketId)
         throws NotAuthorizedException, InvalidArgumentException,
         WorkbasketNotFoundException, WorkbasketInUseException {
+        LOGGER.debug("Entry to markWorkbasketForDeletion(workbasketId= {})", workbasketId);
+        LOGGER.debug("Exit from markWorkbasketForDeletion(), returning {}", new ResponseEntity<>(workbasketService.deleteWorkbasket(workbasketId), HttpStatus.ACCEPTED));
             return new ResponseEntity<>(workbasketService.deleteWorkbasket(workbasketId), HttpStatus.ACCEPTED);
     }
 
@@ -154,8 +162,10 @@ public class WorkbasketController extends AbstractPagingController {
     public ResponseEntity<WorkbasketResource> createWorkbasket(@RequestBody WorkbasketResource workbasketResource)
         throws InvalidWorkbasketException, NotAuthorizedException, WorkbasketAlreadyExistException,
         WorkbasketNotFoundException, DomainNotFoundException {
+        LOGGER.debug("Entry to createWorkbasket(workbasketResource= {})", workbasketResource);
         Workbasket workbasket = workbasketResourceAssembler.toModel(workbasketResource);
         workbasket = workbasketService.createWorkbasket(workbasket);
+        LOGGER.debug("Exit from createWorkbasket(), returning {}", new ResponseEntity<>(workbasketResourceAssembler.toResource(workbasket), HttpStatus.CREATED));
         return new ResponseEntity<>(workbasketResourceAssembler.toResource(workbasket), HttpStatus.CREATED);
     }
 
@@ -165,6 +175,7 @@ public class WorkbasketController extends AbstractPagingController {
         @PathVariable(value = "workbasketId") String workbasketId,
         @RequestBody WorkbasketResource workbasketResource)
         throws InvalidWorkbasketException, WorkbasketNotFoundException, NotAuthorizedException {
+        LOGGER.debug("Entry to updateWorkbasket(workbasketId= {})", workbasketId);
         ResponseEntity<WorkbasketResource> result;
         if (workbasketId.equals(workbasketResource.workbasketId)) {
             Workbasket workbasket = workbasketResourceAssembler.toModel(workbasketResource);
@@ -177,6 +188,7 @@ public class WorkbasketController extends AbstractPagingController {
                     + workbasketResource.getId() + "')");
         }
 
+        LOGGER.debug("Exit from updateWorkbasket(), returning {}", result);
         return result;
     }
 
@@ -185,13 +197,14 @@ public class WorkbasketController extends AbstractPagingController {
     public ResponseEntity<Resources<WorkbasketAccessItemResource>> getWorkbasketAccessItems(
         @PathVariable(value = "workbasketId") String workbasketId)
         throws NotAuthorizedException, WorkbasketNotFoundException {
-
+        LOGGER.debug("Entry to getWorkbasketAccessItems(workbasketId= {})", workbasketId);
         ResponseEntity<Resources<WorkbasketAccessItemResource>> result;
 
         List<WorkbasketAccessItem> accessItems = workbasketService.getWorkbasketAccessItems(workbasketId);
         Resources<WorkbasketAccessItemResource> accessItemListResource = accessItemListAssembler
             .toResource(workbasketId, accessItems);
         result = new ResponseEntity<>(accessItemListResource, HttpStatus.OK);
+        LOGGER.debug("Exit from getWorkbasketAccessItems(), returning {}", result);
         return result;
     }
 
@@ -201,6 +214,7 @@ public class WorkbasketController extends AbstractPagingController {
         @PathVariable(value = "workbasketId") String workbasketId,
         @RequestBody List<WorkbasketAccessItemResource> workbasketAccessResourceItems)
         throws NotAuthorizedException, InvalidArgumentException, WorkbasketNotFoundException {
+        LOGGER.debug("Entry to setWorkbasketAccessItems(workbasketId= {})", workbasketId);
         if (workbasketAccessResourceItems == null) {
             throw new InvalidArgumentException("Can´t create something with NULL body-value.");
         }
@@ -213,6 +227,7 @@ public class WorkbasketController extends AbstractPagingController {
         Resources<WorkbasketAccessItemResource> accessItemListResource = accessItemListAssembler
             .toResource(workbasketId, updatedWbAccessItems);
 
+        LOGGER.debug("Exit from setWorkbasketAccessItems(), returning {}", new ResponseEntity<>(accessItemListResource, HttpStatus.OK));
         return new ResponseEntity<>(accessItemListResource, HttpStatus.OK);
     }
 
@@ -221,12 +236,13 @@ public class WorkbasketController extends AbstractPagingController {
     public ResponseEntity<Resources<DistributionTargetResource>> getDistributionTargets(
         @PathVariable(value = "workbasketId") String workbasketId)
         throws WorkbasketNotFoundException, NotAuthorizedException {
-
+        LOGGER.debug("Entry to getDistributionTargets(workbasketId= {})", workbasketId);
         ResponseEntity<Resources<DistributionTargetResource>> result;
         List<WorkbasketSummary> distributionTargets = workbasketService.getDistributionTargets(workbasketId);
         Resources<DistributionTargetResource> distributionTargetListResource = distributionTargetListAssembler
             .toResource(workbasketId, distributionTargets);
         result = new ResponseEntity<>(distributionTargetListResource, HttpStatus.OK);
+        LOGGER.debug("Exit from getDistributionTargets(), returning {}", result);
         return result;
     }
 
@@ -235,12 +251,14 @@ public class WorkbasketController extends AbstractPagingController {
     public ResponseEntity<Resources<DistributionTargetResource>> setDistributionTargetsForWorkbasketId(
         @PathVariable(value = "workbasketId") String sourceWorkbasketId,
         @RequestBody List<String> targetWorkbasketIds) throws WorkbasketNotFoundException, NotAuthorizedException {
+        LOGGER.debug("Entry to getTasksStatusReport(workbasketId= {}, targetWorkbasketIds´= {})", sourceWorkbasketId, targetWorkbasketIds);
         workbasketService.setDistributionTargets(sourceWorkbasketId, targetWorkbasketIds);
 
         List<WorkbasketSummary> distributionTargets = workbasketService.getDistributionTargets(sourceWorkbasketId);
         Resources<DistributionTargetResource> distributionTargetListResource = distributionTargetListAssembler
             .toResource(sourceWorkbasketId, distributionTargets);
 
+        LOGGER.debug("Exit from getTasksStatusReport(), returning {}", new ResponseEntity<>(distributionTargetListResource, HttpStatus.OK));
         return new ResponseEntity<>(distributionTargetListResource, HttpStatus.OK);
     }
 
@@ -249,16 +267,19 @@ public class WorkbasketController extends AbstractPagingController {
     public ResponseEntity<Resources<DistributionTargetResource>> removeDistributionTargetForWorkbasketId(
         @PathVariable(value = "workbasketId") String targetWorkbasketId)
         throws WorkbasketNotFoundException, NotAuthorizedException {
+        LOGGER.debug("Entry to removeDistributionTargetForWorkbasketId(workbasketId= {})", targetWorkbasketId);
         List<WorkbasketSummary> sourceWorkbaskets = workbasketService.getDistributionSources(targetWorkbasketId);
         for (WorkbasketSummary source : sourceWorkbaskets) {
             workbasketService.removeDistributionTarget(source.getId(), targetWorkbasketId);
         }
 
+        LOGGER.debug("Exit from removeDistributionTargetForWorkbasketId(), returning {}", new ResponseEntity<>(HttpStatus.NO_CONTENT));
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     private WorkbasketQuery applySortingParams(WorkbasketQuery query, MultiValueMap<String, String> params)
         throws IllegalArgumentException {
+        LOGGER.debug("Entry to applySortingParams(query= {}, params={})", query, params);
         // sorting
         String sortBy = params.getFirst(SORT_BY);
         if (sortBy != null) {
@@ -290,11 +311,13 @@ public class WorkbasketController extends AbstractPagingController {
         }
         params.remove(SORT_BY);
         params.remove(SORT_DIRECTION);
+        LOGGER.debug("Exit from applySortingParams(), returning {}", query);
         return query;
     }
 
     private WorkbasketQuery applyFilterParams(WorkbasketQuery query,
         MultiValueMap<String, String> params) throws InvalidArgumentException {
+        LOGGER.debug("Entry to applyFilterParams(query= {}, params= {})", query, params);
         if (params.containsKey(NAME)) {
             String[] names = extractCommaSeparatedFields(params.get(NAME));
             query.nameIn(names);
@@ -409,6 +432,7 @@ public class WorkbasketController extends AbstractPagingController {
             }
             params.remove(REQUIRED_PERMISSION);
         }
+        LOGGER.debug("Exit from applyFilterParams(), returning {}", query);
         return query;
     }
 

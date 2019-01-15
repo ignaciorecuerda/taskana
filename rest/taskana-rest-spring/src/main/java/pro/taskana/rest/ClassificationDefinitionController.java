@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,6 +37,8 @@ import pro.taskana.exceptions.NotAuthorizedException;
 @RequestMapping(path = "/v1/classificationdefinitions", produces = {MediaType.APPLICATION_JSON_VALUE})
 public class ClassificationDefinitionController {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClassificationDefinitionController.class);
+
     @Autowired
     private ClassificationService classificationService;
 
@@ -42,9 +46,11 @@ public class ClassificationDefinitionController {
     @Transactional(readOnly = true, rollbackFor = Exception.class)
     public ResponseEntity<List<ClassificationSummary>> exportClassifications(
         @RequestParam(required = false) String domain) {
+        LOGGER.debug("Entry to exportClassifications(domain= {})", domain);
         ClassificationQuery query = classificationService.createClassificationQuery();
         List<ClassificationSummary> summaries = domain != null ? query.domainIn(domain).list() : query.list();
 
+        LOGGER.debug("Exit from exportClassifications(), returning {}", new ResponseEntity<>(summaries, HttpStatus.OK));
         return new ResponseEntity<>(summaries, HttpStatus.OK);
     }
 
@@ -52,6 +58,7 @@ public class ClassificationDefinitionController {
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<String> importClassifications(
         @RequestBody List<Classification> classifications) throws InvalidArgumentException {
+        LOGGER.debug("Entry to importClassifications(classifications= {})", classifications);
         Map<String, String> systemIds = classificationService.createClassificationQuery()
             .list()
             .stream()
@@ -66,18 +73,21 @@ public class ClassificationDefinitionController {
             }
         } catch (NotAuthorizedException e) {
             TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
+            LOGGER.debug("Exit from createTask(), returning {}", new ResponseEntity<>(HttpStatus.UNAUTHORIZED));
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         } catch (ClassificationNotFoundException | DomainNotFoundException e) {
             TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
+            LOGGER.debug("Exit from createTask(), returning {}", new ResponseEntity<>(HttpStatus.NOT_FOUND));
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         } catch (ClassificationAlreadyExistException e) {
             TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
+            LOGGER.debug("Exit from createTask(), returning {}", new ResponseEntity<>(HttpStatus.CONFLICT));
             return new ResponseEntity<>(HttpStatus.CONFLICT);
             // TODO why is this occuring???
         } catch (ConcurrencyException e) {
         }
 
+        LOGGER.debug("Exit from importClassifications(), returning {}", new ResponseEntity<>(HttpStatus.OK));
         return new ResponseEntity<>(HttpStatus.OK);
-
     }
 }
