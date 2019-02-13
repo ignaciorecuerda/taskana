@@ -26,14 +26,11 @@ import pro.taskana.ldap.LdapClient;
 import pro.taskana.ldap.LdapConfiguration;
 import pro.taskana.sampledata.SampleDataGenerator;
 
-/**
- * Example Application showing the implementation of taskana-rest-spring.
- */
 @SpringBootApplication
 @EnableScheduling
 @ComponentScan(basePackages = "pro.taskana")
-@Import({TransactionalJobsConfiguration.class, LdapConfiguration.class, RestConfiguration.class, WebMvcConfig.class})
-public class ExampleRestApplication {
+@Import({TransactionalJobsConfiguration.class, RestConfiguration.class, WebMvcConfig.class})
+public class ExampleDocumentationApp {
 
     @Value("${taskana.schemaName:TASKANA}")
     public String schemaName;
@@ -50,7 +47,7 @@ public class ExampleRestApplication {
     @Autowired private LdapCacheTestImpl ldapCacheTest;
 
     public static void main(String[] args) {
-        SpringApplication.run(ExampleRestApplication.class, args);
+        SpringApplication.run(ExampleDocumentationApp.class, args);
     }
 
     @Bean

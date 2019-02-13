@@ -1,85 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-
-	<groupId>pro.taskana</groupId>
-	<artifactId>taskana-rest-spring-example</artifactId>
-	<version>1.0.8-SNAPSHOT</version>
-	<packaging>jar</packaging>
-
-	<name>rest</name>
-	<description>Demo project for taskana-rest-spring</description>
-
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.0.2.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<!-- Repository for postgresql V. 9.4.1212 driver.
-		<repositories>
-			<repository>
-				<id>postgresql</id>
-				<name>postgresql repository</name>
-				<url>https://mvnrepository.com/artifact/postgresql/postgresql</url>
-			</repository>
-		</repositories>
-	-->
-
+	<groupId>pro.taskana</groupId>
+	<modelVersion>4.0.0</modelVersion>
+	<packaging>jar</packaging>
+	<artifactId>taskana-rest-docu</artifactId>
+	<version>1.0.8-SNAPSHOT</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
 		<spring.ldap.version>2.3.2.RELEASE</spring.ldap.version>
 	</properties>
-
-	<profiles>
-		<profile>
-			<id>history.plugin</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<properties>
-				<build.profile.id>history.plugin</build.profile.id>
-			</properties>
-			<dependencies>
-				<dependency>
-					<groupId>pro.taskana.simplehistory</groupId>
-					<artifactId>taskana-simplehistory-provider</artifactId>
-					<version>0.0.6</version>
-				</dependency>
-			</dependencies>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>2.22.0</version>
-						<configuration>
-							<includes>
-								<include>**/*Plugin*Test.java</include>
-							</includes>
-							<excludes>
-								<exclude>**/Test/*.java</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-
 	<dependencies>
 		<dependency>
 			<groupId>pro.taskana</groupId>
 			<artifactId>taskana-rest-spring</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>pro.taskana</groupId>
-			<artifactId>taskana-history-rest-spring</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -101,7 +44,7 @@
 		<dependency>
 			<groupId>org.springframework.ldap</groupId>
 			<artifactId>spring-ldap-core</artifactId>
-			<version>${spring.ldap.version}</version>
+			<version>2.3.2.RELEASE</version>
 		</dependency>
 
 		<dependency>
@@ -110,11 +53,6 @@
 			<version>1.4.197</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.ibm.db2.jcc</groupId>
-			<artifactId>db2jcc4</artifactId>
-			<version>11.1.1.1</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/postgresql/postgresql -->
 		<!--  Postgresql driver dependency
 		<dependency>
@@ -154,7 +92,7 @@
 		<dependency>
 			<groupId>org.springframework.ldap</groupId>
 			<artifactId>spring-ldap-test</artifactId>
-			<version>${spring.ldap.version}</version>
+			<version>2.3.2.RELEASE</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
@@ -179,6 +117,7 @@
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -334,14 +273,4 @@
 		</plugins>
 	</build>
 
-	<!--
-	  this repository is needed to fetch com.ibm.db2.jcc
-	-->
-	<repositories>
-		<repository>
-			<id>novatec public</id>
-			<name>novatec-repository</name>
-			<url>https://repository.novatec-gmbh.de/content/repositories/novatec/</url>
-		</repository>
-	</repositories>
 </project>
