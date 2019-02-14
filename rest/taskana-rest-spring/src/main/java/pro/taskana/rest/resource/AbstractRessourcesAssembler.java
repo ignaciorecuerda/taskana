@@ -23,7 +23,7 @@ public abstract class AbstractRessourcesAssembler {
         original = getBuilderForOriginalUri();
     }
 
-    protected static UriComponentsBuilder getBuilderForOriginalUri() {
+    public static UriComponentsBuilder getBuilderForOriginalUri() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
             .getRequest();
         UriComponentsBuilder baseUri = ServletUriComponentsBuilder.fromServletMapping(request)
@@ -37,7 +37,7 @@ public abstract class AbstractRessourcesAssembler {
         return original;
     }
 
-    protected PagedResources<?> addPageLinks(PagedResources<?> pagedResources, PageMetadata pageMetadata) {
+    public PagedResources<?> addPageLinks(PagedResources<?> pagedResources, PageMetadata pageMetadata) {
         UriComponentsBuilder original = getBuilderForOriginalUri();
         pagedResources.add(new Link(original.replaceQueryParam("page", 1).toUriString()).withRel(Link.REL_FIRST));
         pagedResources.add(new Link(original.replaceQueryParam("page", pageMetadata.getTotalPages()).toUriString())

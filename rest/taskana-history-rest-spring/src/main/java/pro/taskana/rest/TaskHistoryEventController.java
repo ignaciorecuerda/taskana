@@ -19,13 +19,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import pro.taskana.rest.resource.TaskHistoryEventListAssembler;
 import pro.taskana.BaseQuery;
 import pro.taskana.TimeInterval;
 import pro.taskana.configuration.TaskanaEngineConfiguration;
 import pro.taskana.exceptions.InvalidArgumentException;
 import pro.taskana.impl.util.LoggerUtils;
 import pro.taskana.rest.resource.TaskHistoryEventResource;
-import pro.taskana.rest.resource.TaskHistoryEventListAssembler;
 import pro.taskana.simplehistory.impl.HistoryEventImpl;
 import pro.taskana.simplehistory.impl.SimpleHistoryServiceImpl;
 import pro.taskana.simplehistory.query.HistoryQuery;

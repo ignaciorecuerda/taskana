@@ -80,7 +80,7 @@ public class ExampleRestApplication {
     }
 
     @PostConstruct
-    private void init() {
+    public void init() {
         if (!ldapClient.useLdap()) {
             AccessIdController.setLdapCache(ldapCacheTest);
         }

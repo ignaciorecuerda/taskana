@@ -1,4 +1,4 @@
-package pro.taskana.rest.sampledata;
+package pro.taskana.sampledata;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -17,9 +17,9 @@ import org.slf4j.LoggerFactory;
 /**
  * This class generates sample data for manual testing purposes.
  */
-public class SampleDataGenerator {
+public class SampleDataHistoryGenerator {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SampleDataGenerator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SampleDataHistoryGenerator.class);
     private static final String TEST_DATA = "/sql.sample-data";
     private static final String CLEAR =  TEST_DATA + "/clear-db.sql";
     private static final String HISTORY_EVENT =  TEST_DATA + "/history-event.sql";
@@ -27,7 +27,7 @@ public class SampleDataGenerator {
 
     DataSource dataSource;
 
-    public SampleDataGenerator(DataSource dataSource) throws SQLException {
+    public SampleDataHistoryGenerator(DataSource dataSource) throws SQLException {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace(dataSource.getConnection().getMetaData().toString());
         }
