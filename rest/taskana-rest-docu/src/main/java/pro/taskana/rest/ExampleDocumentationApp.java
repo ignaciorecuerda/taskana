@@ -23,7 +23,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 import pro.taskana.jobs.TransactionalJobsConfiguration;
 import pro.taskana.ldap.LdapCacheTestImpl;
 import pro.taskana.ldap.LdapClient;
-import pro.taskana.ldap.LdapConfiguration;
 import pro.taskana.sampledata.SampleDataGenerator;
 
 @SpringBootApplication

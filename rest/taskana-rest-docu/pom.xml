@@ -11,7 +11,7 @@
 	<groupId>pro.taskana</groupId>
 	<modelVersion>4.0.0</modelVersion>
 	<packaging>jar</packaging>
-	<artifactId>taskana-rest-docu</artifactId>
+	<artifactId>taskana-rest-documentation</artifactId>
 	<version>1.0.8-SNAPSHOT</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -42,79 +42,37 @@
 			<artifactId>spring-plugin-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.ldap</groupId>
-			<artifactId>spring-ldap-core</artifactId>
-			<version>2.3.2.RELEASE</version>
-		</dependency>
-
-		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>1.4.197</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/postgresql/postgresql -->
-		<!--  Postgresql driver dependency
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>9.4.1212</version>
-		</dependency>
-		-->
-		<!--
-	      Since taskana-web packs its content in /static, we do not have to unpack it again.
-	      However, when any local change has to be done to that folder you have to copy
-	      target/classes/static manually from taskana-web.
-	    -->
-		<dependency>
-			<groupId>pro.taskana</groupId>
-			<artifactId>taskana-web</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>pro.taskana</groupId>
-			<artifactId>taskana-core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 		<!-- Tests -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.ldap</groupId>
-			<artifactId>spring-ldap-test</artifactId>
-			<version>2.3.2.RELEASE</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<artifactId>commons-logging</artifactId>
-					<groupId>commons-logging</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.restdocs</groupId>
 			<artifactId>spring-restdocs-mockmvc</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>pro.taskana</groupId>
 			<artifactId>taskana-rest-spring-setup</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>pro.taskana.simplehistory</groupId>
+			<artifactId>taskana-simplehistory-provider</artifactId>
+			<version>0.0.6</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
