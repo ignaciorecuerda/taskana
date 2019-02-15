@@ -1,4 +1,4 @@
-package pro.taskana.doc.api;
+package pro.taskana.doc.api.rest;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -33,12 +33,12 @@ import org.springframework.web.context.WebApplicationContext;
 import pro.taskana.rest.RestConfiguration;
 
 /**
- * Test ClassificationDefinitionControlller.
+ * Generate Rest Documentation for Workbasket Definitions.
  *
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = RestConfiguration.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ClassificationDefinitionControllerRestDocumentation {
+public class WorkbasketDefinitionControllerRestDocumentation {
 
     @LocalServerPort
     int port;
@@ -51,7 +51,7 @@ public class ClassificationDefinitionControllerRestDocumentation {
 
     private MockMvc mockMvc;
 
-    private FieldDescriptor[] classificationDefinitionsFieldDescriptors;
+    private FieldDescriptor[] workbasketDefinitionsFieldDescriptors;
 
     @Before
     public void setUp() {
@@ -67,33 +67,38 @@ public class ClassificationDefinitionControllerRestDocumentation {
                 .withRequestDefaults(prettyPrint()))
             .build();
 
-        classificationDefinitionsFieldDescriptors = new FieldDescriptor[] {
-            subsectionWithPath("[]").description("An array of <<ClassificationResource, classifications>>")
+        workbasketDefinitionsFieldDescriptors = new FieldDescriptor[] {
+            subsectionWithPath("[]").description("An array of <<WorkbasketDefinitions, workbasketsDefinitions>>")
         };
     }
 
     @Test
-    public void exportAllClassificationDefinitions() throws Exception {
+    public void exportAllWorkbasketDefinitions() throws Exception {
         this.mockMvc.perform(RestDocumentationRequestBuilders
-            .get("http://127.0.0.1:" + port + "/v1/classification-definitions")
+            .get("http://127.0.0.1:" + port + "/v1/workbasket-definitions")
             .accept("application/json")
             .header("Authorization", "Basic dGVhbWxlYWRfMTp0ZWFtbGVhZF8x"))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andDo(MockMvcRestDocumentation.document("ExportClassificationDefinitionsDocTest",
-                responseFields(classificationDefinitionsFieldDescriptors)));
+            .andDo(MockMvcRestDocumentation.document("ExportWorkbasketdefinitionsDocTest",
+                responseFields(workbasketDefinitionsFieldDescriptors)));
     }
 
     @Test
-    public void importClassificationDefinitions() throws Exception {
-        String definitionString = "[{\"key\":\"Key0815\", \"domain\":\"DOMAIN_B\"}]";
+    public void importWorkbasketDefinition() throws Exception {
+        String definitionString = "["
+            + "{"
+            + "\"distributionTargets\":[], "
+            + "\"authorizations\":[], "
+            + "\"workbasket\": {\"name\":\"wbblabla\", \"key\":\"neuerKeyXy\", \"domain\": \"DOMAIN_A\", \"type\":\"GROUP\" , \"workbasketId\":\"gibtsNed\"}"
+            + "}"
+            + "]";
 
-        this.mockMvc.perform(multipart("http://127.0.0.1:" + port + "/v1/classification-definitions")
+        this.mockMvc.perform(multipart("http://127.0.0.1:" + port + "/v1/workbasket-definitions")
             .file("file",
                 definitionString.getBytes())
             .header("Authorization", "Basic dGVhbWxlYWRfMTp0ZWFtbGVhZF8x"))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andDo(document("ImportClassificationDefinitions", requestParts(
-                partWithName("file").description("The file to upload"))
-            ));
+            .andDo(document("ImportWorkbasketDefinitions", requestParts(
+                partWithName("file").description("The file to upload"))));
     }
 }

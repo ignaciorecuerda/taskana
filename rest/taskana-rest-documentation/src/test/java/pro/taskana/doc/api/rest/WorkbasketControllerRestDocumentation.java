@@ -1,4 +1,4 @@
-package pro.taskana.doc.api;
+package pro.taskana.doc.api.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;

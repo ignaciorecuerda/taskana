@@ -25,6 +25,9 @@ import pro.taskana.ldap.LdapCacheTestImpl;
 import pro.taskana.ldap.LdapClient;
 import pro.taskana.sampledata.SampleDataGenerator;
 
+/**
+ * Example Application to create the documentation.
+ */
 @SpringBootApplication
 @EnableScheduling
 @ComponentScan(basePackages = "pro.taskana")

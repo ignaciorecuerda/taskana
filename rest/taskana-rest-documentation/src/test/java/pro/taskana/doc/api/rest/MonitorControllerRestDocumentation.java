@@ -1,4 +1,4 @@
-package pro.taskana.doc.api;
+package pro.taskana.doc.api.rest;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;

@@ -215,14 +215,14 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>copy-history-rest-spring-docs</id>
+						<id>copy-documentation-to-taskana-rest-spring-example</id>
 						<phase>prepare-package</phase>
 						<goals>
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
 							<outputDirectory>
-								${project.build.outputDirectory}/static/docs/rest
+								../taskana-rest-spring-example/target/generated-docs
 							</outputDirectory>
 							<resources>
 								<resource>
@@ -230,8 +230,24 @@
 										${project.build.directory}/generated-docs
 									</directory>
 								</resource>
+							</resources>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy-documentation-to-taskana-rest-spring-wildfly-example</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>
+								../taskana-rest-spring-wildfly-example/target/generated-docs
+							</outputDirectory>
+							<resources>
 								<resource>
-									<directory>../taskana-history-rest-spring/target/apidocs</directory>
+									<directory>
+										${project.build.directory}/generated-docs
+									</directory>
 								</resource>
 							</resources>
 						</configuration>

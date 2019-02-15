@@ -786,22 +786,24 @@ include::../../../{snippets}/CommonSummaryResourceFields/response-body.adoc[]
 
 == History event
 
+It is a plugin which can get the history of action performed
+
 === Get all task history event
 
 ==== Example request
 
-include::../../../../taskana-history-rest-spring/{snippets}/GetAllTaskHistoryEventDocTest/http-request.adoc[]
+include::../../../{snippets}/GetAllTaskHistoryEventDocTest/http-request.adoc[]
 
 ==== Example response
 
-include::../../../../taskana-history-rest-spring/{snippets}/GetAllTaskHistoryEventDocTest/response-body.adoc[]
+include::../../../{snippets}/GetAllTaskHistoryEventDocTest/response-body.adoc[]
 
 === Get a specific task history event
 
 ==== Example request
 
-include::../../../../taskana-history-rest-spring/{snippets}/GetSpecificTaskHistoryEventDocTest/http-request.adoc[]
+include::../../../{snippets}/GetSpecificTaskHistoryEventDocTest/http-request.adoc[]
 
 ==== Example response
 
-include::../../../../taskana-history-rest-spring/{snippets}/GetSpecificTaskHistoryEventDocTest/response-body.adoc[]
+include::../../../{snippets}/GetSpecificTaskHistoryEventDocTest/response-body.adoc[]

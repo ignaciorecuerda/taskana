@@ -1,4 +1,4 @@
-package pro.taskana.doc.api;
+package pro.taskana.doc.api.rest;
 
 import org.junit.Before;
 import org.junit.Rule;

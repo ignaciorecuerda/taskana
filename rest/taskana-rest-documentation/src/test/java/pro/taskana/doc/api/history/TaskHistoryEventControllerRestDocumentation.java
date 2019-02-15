@@ -105,8 +105,15 @@ public class TaskHistoryEventControllerRestDocumentation {
 
         allTaskHistoryEventFieldDescriptors = new FieldDescriptor[] {
             subsectionWithPath("_embedded.taskHistoryEventResourceList").description("An array of Task history event"),
+            fieldWithPath("_links.allTaskHistoryEvent.href").ignored(),
             fieldWithPath("_links.self.href").ignored(),
-            fieldWithPath("page").ignored()
+            fieldWithPath("_links.first.href").ignored(),
+            fieldWithPath("_links.last.href").ignored(),
+            fieldWithPath("_links.next.href").ignored(),
+            fieldWithPath("page.size").ignored(),
+            fieldWithPath("page.totalElements").ignored(),
+            fieldWithPath("page.totalPages").ignored(),
+            fieldWithPath("page.number").ignored()
         };
 
         taskHistoryEventFieldDescriptors = new FieldDescriptor[] {
@@ -170,7 +177,7 @@ public class TaskHistoryEventControllerRestDocumentation {
     @Test
     public void getAllTaskHistoryEventDocTest() throws Exception {
         this.mockMvc.perform(
-            RestDocumentationRequestBuilders.get("http://127.0.0.1:" + port + "/v1/task-history-event")
+            RestDocumentationRequestBuilders.get("http://127.0.0.1:" + port + "/v1/task-history-event?page=1&page-size=3")
                 .accept("application/hal+json")
                 .header("Authorization", "Basic dGVhbWxlYWRfMTp0ZWFtbGVhZF8x"))
             .andExpect(MockMvcResultMatchers.status().isOk())
