@@ -1,4 +1,4 @@
-package pro.taskana.rest;
+package pro.taskana.rest.history;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -34,6 +34,8 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import pro.taskana.rest.RestConfiguration;
+import pro.taskana.rest.TaskHistoryRestConfiguration;
 import pro.taskana.rest.resource.TaskHistoryEventResource;
 
 /**
@@ -68,7 +70,7 @@ public class TaskHistoryEventControllerIntTest {
             new ParameterizedTypeReference<PagedResources<TaskHistoryEventResource>>() {
             });
         assertNotNull(response.getBody().getLink(Link.REL_SELF));
-        assertEquals(3, response.getBody().getContent().size());
+        assertEquals(50, response.getBody().getContent().size());
     }
 
     @Test
@@ -123,8 +125,8 @@ public class TaskHistoryEventControllerIntTest {
             new ParameterizedTypeReference<PagedResources<TaskHistoryEventResource>>() {
 
             });
-        assertEquals(1, response.getBody().getContent().size());
-        assertEquals("WBI:100000000000000000000000000000000001",
+        assertEquals(2, response.getBody().getContent().size());
+        assertEquals("WBI:100000000000000000000000000000000002",
             response.getBody().getContent().iterator().next().getWorkbasketKey());
         assertNotNull(response.getBody().getLink(Link.REL_SELF));
         assertTrue(response.getBody()

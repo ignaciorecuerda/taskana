@@ -22,6 +22,7 @@ import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -37,6 +38,7 @@ import pro.taskana.rest.TaskHistoryRestConfiguration;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {RestConfiguration.class,
     TaskHistoryRestConfiguration.class}, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles(profiles = "history.plugin")
 public class TaskHistoryEventControllerRestDocumentation {
 
     @LocalServerPort

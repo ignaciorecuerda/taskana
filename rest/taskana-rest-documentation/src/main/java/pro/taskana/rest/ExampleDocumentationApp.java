@@ -24,7 +24,6 @@ import pro.taskana.jobs.TransactionalJobsConfiguration;
 import pro.taskana.ldap.LdapCacheTestImpl;
 import pro.taskana.ldap.LdapClient;
 import pro.taskana.sampledata.SampleDataGenerator;
-import pro.taskana.sampledata.SampleDataHistoryGenerator;
 
 @SpringBootApplication
 @EnableScheduling
@@ -40,9 +39,6 @@ public class ExampleDocumentationApp {
 
     @Autowired
     private SampleDataGenerator sampleDataGenerator;
-
-    @Autowired
-    private SampleDataHistoryGenerator sampleDataHistoryGenerator;
 
     @Autowired
     private LdapClient ldapClient;
@@ -74,13 +70,6 @@ public class ExampleDocumentationApp {
 
     @Bean
     @DependsOn("getTaskanaEngine") // generate sample sampledata after schema was inserted
-    public SampleDataHistoryGenerator generateSampleHistoryData(DataSource dataSource) throws SQLException {
-        sampleDataHistoryGenerator = new SampleDataHistoryGenerator(dataSource);
-        return sampleDataHistoryGenerator;
-    }
-
-    @Bean
-    @DependsOn("getTaskanaEngine") // generate sample sampledata after schema was inserted
     public SampleDataGenerator generateSampleData(DataSource dataSource) throws SQLException {
         sampleDataGenerator = new SampleDataGenerator(dataSource);
         return sampleDataGenerator;
@@ -93,7 +82,6 @@ public class ExampleDocumentationApp {
         }
         if (generateSampleData) {
             sampleDataGenerator.generateSampleData(schemaName);
-            sampleDataHistoryGenerator.generateSampleData(schemaName);
         }
     }
 }
