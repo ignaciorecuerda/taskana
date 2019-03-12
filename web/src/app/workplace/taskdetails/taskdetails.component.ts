@@ -16,6 +16,8 @@ import { ObjectReference } from 'app/workplace/models/object-reference';
 import { Workbasket } from 'app/models/workbasket';
 import { WorkplaceService } from 'app/workplace/services/workplace.service';
 import { MasterAndDetailService } from 'app/services/masterAndDetail/master-and-detail.service';
+import { ClassificationsService } from 'app/services/classifications/classifications.service';
+import { Classification } from 'app/models/classification';
 
 @Component({
   selector: 'taskana-task-details',
@@ -30,6 +32,7 @@ export class TaskdetailsComponent implements OnInit, OnDestroy {
   currentWorkbasket: Workbasket = undefined;
   currentId: string = undefined;
   showDetail = false;
+  classifications: Classification[] = undefined;
 
   private routeSubscription: Subscription;
   private workbasketSubscription: Subscription;
@@ -44,7 +47,8 @@ export class TaskdetailsComponent implements OnInit, OnDestroy {
     private requestInProgressService: RequestInProgressService,
     private alertService: AlertService,
     private generalModalService: GeneralModalService,
-    private masterAndDetailService: MasterAndDetailService) {
+    private masterAndDetailService: MasterAndDetailService,
+    private classificationService: ClassificationsService) {
   }
 
   ngOnInit() {
@@ -62,6 +66,11 @@ export class TaskdetailsComponent implements OnInit, OnDestroy {
     });
     this.masterAndDetailSubscription = this.masterAndDetailService.getShowDetail().subscribe(showDetail => {
       this.showDetail = showDetail;
+    });
+    this.requestInProgress = true;
+    this.classificationService.getClassifications().subscribe(classificationList => {
+      this.requestInProgress = false;
+      this.classifications = classificationList;
     });
   }
 

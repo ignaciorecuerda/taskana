@@ -2,7 +2,6 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TaskdetailsGeneralFieldsComponent } from './general-fields.component';
 import { FormsModule } from '@angular/forms';
-import { ClassificationsService } from 'app/services/classifications/classifications.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ClassificationCategoriesService } from 'app/services/classifications/classification-categories.service';
 import { CustomFieldsService } from 'app/services/custom-fields/custom-fields.service';
@@ -33,7 +32,7 @@ xdescribe('GeneralComponent', () => {
     TestBed.configureTestingModule({
       imports: [FormsModule, HttpClientModule, RouterTestingModule.withRoutes(routes)],
       declarations: [TaskdetailsGeneralFieldsComponent, DummyDetailComponent],
-      providers: [ClassificationsService, HttpClient, ClassificationCategoriesService, CustomFieldsService,
+      providers: [HttpClient, ClassificationCategoriesService, CustomFieldsService,
         DomainService, RequestInProgressService, SelectedRouteService]
     })
     .compileComponents();

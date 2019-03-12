@@ -68,7 +68,7 @@
               <li *ngFor="let classification of classifications" (click)="selectClassification(classification)">
                 <a>
                     <label>
-                        <span class="material-icons md-20 blue ">{{classification.name === task.classificationSummaryResource?.name ?
+                        <span class="material-icons md-20 blue ">{{classification.key === task.classificationSummaryResource?.key ?
                             'check_box': 'check_box_outline_blank'}} </span>
                         <span> {{classification.name}} </span>
                     </label>

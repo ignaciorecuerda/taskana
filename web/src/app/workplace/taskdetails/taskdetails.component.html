@@ -36,7 +36,7 @@
           <span class="float-right pull-right material-icons md-20 blue">{{accordion1State?
             'expand_more':'expand_less'}}</span>
         </button>
-        <taskana-task-details-general-fields [task]="task" [saveToggleTriggered]="toggleFormValidation" (formValid)="onSubmit()"></taskana-task-details-general-fields>
+        <taskana-task-details-general-fields [task]="task" [saveToggleTriggered]="toggleFormValidation" [classifications]="classifications" (formValid)="onSubmit()"></taskana-task-details-general-fields>
       </accordion-group>
       <accordion-group panelClass="customClass" (isOpenChange)="accordion2State = $event">
         <button class="btn  btn-block clearfix" accordion-heading>

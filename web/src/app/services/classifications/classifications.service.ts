@@ -49,7 +49,6 @@ export class ClassificationsService {
       }));
   }
 
-
   // POST
   postClassification(classification: Classification): Observable<Classification> {
     return this.httpClient.post<Classification>(`${this.url}`, classification);
@@ -72,7 +71,6 @@ export class ClassificationsService {
 
   getSelectedClassification(): Observable<ClassificationDefinition> {
     return this.classificationSelected.asObservable();
-
   }
 
   triggerClassificationSaved() {
@@ -139,4 +137,3 @@ export class ClassificationsService {
     }
   }
 }
-

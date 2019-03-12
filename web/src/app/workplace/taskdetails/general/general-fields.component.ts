@@ -1,7 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild, SimpleChanges, OnChanges, HostListener } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, SimpleChanges, OnChanges, HostListener } from '@angular/core';
 import { Task } from 'app/workplace/models/task';
 import { Classification } from '../../../models/classification';
-import { ClassificationsService } from '../../../services/classifications/classifications.service';
 import { CustomFieldsService } from 'app/services/custom-fields/custom-fields.service';
 import { FormsValidatorService } from 'app/shared/services/forms/forms-validator.service';
 import { NgForm } from '@angular/forms';
@@ -11,7 +10,7 @@ import { NgForm } from '@angular/forms';
   templateUrl: './general-fields.component.html',
   styleUrls: ['./general-fields.component.scss']
 })
-export class TaskdetailsGeneralFieldsComponent implements OnInit, OnChanges {
+export class TaskdetailsGeneralFieldsComponent implements OnChanges {
 
   @Input()
   task: Task;
@@ -21,14 +20,14 @@ export class TaskdetailsGeneralFieldsComponent implements OnInit, OnChanges {
   saveToggleTriggered: boolean;
   @Output() formValid: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-  @Output() classificationsReceived: EventEmitter<Classification[]> = new EventEmitter<Classification[]>();
+  @Input()
+  classifications: Classification[];
 
   @ViewChild('TaskForm')
   taskForm: NgForm;
 
   toogleValidationMap = new Map<string, boolean>();
   requestInProgress = false;
-  classifications: Classification[] = undefined;
 
   ownerField = this.customFieldsService.getCustomField(
     'Owner',
@@ -36,7 +35,6 @@ export class TaskdetailsGeneralFieldsComponent implements OnInit, OnChanges {
   );
 
   constructor(
-    private classificationService: ClassificationsService,
     private customFieldsService: CustomFieldsService,
     private formsValidatorService: FormsValidatorService) {
   }
@@ -45,15 +43,6 @@ export class TaskdetailsGeneralFieldsComponent implements OnInit, OnChanges {
     if (changes.saveToggleTriggered && changes.saveToggleTriggered.currentValue !== changes.saveToggleTriggered.previousValue) {
       this.validate();
     }
-  }
-
-  ngOnInit() {
-    this.requestInProgress = true;
-    this.classificationService.getClassifications().subscribe(classificationList => {
-      this.requestInProgress = false;
-      this.classifications = classificationList;
-      this.classificationsReceived.emit(this.classifications);
-    });
   }
 
   selectClassification(classification: Classification) {
