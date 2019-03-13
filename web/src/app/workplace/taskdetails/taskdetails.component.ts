@@ -67,11 +67,7 @@ export class TaskdetailsComponent implements OnInit, OnDestroy {
     this.masterAndDetailSubscription = this.masterAndDetailService.getShowDetail().subscribe(showDetail => {
       this.showDetail = showDetail;
     });
-    this.requestInProgress = true;
-    this.classificationService.getClassifications().subscribe(classificationList => {
-      this.requestInProgress = false;
-      this.classifications = classificationList;
-    });
+    this.classifications = this.classificationService.getClassificationsAsList();
   }
 
   resetTask(): void {

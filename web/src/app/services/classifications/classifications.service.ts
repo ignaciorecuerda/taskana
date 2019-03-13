@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'environments/environment';
-import { Observable, Subject, combineLatest } from 'rxjs';
+import { Observable, Subject, combineLatest, ReplaySubject } from 'rxjs';
 import { mergeMap, tap } from 'rxjs/operators';
 
 import { Classification } from 'app/models/classification';
@@ -20,6 +20,7 @@ export class ClassificationsService {
   private url = `${environment.taskanaRestUrl}/v1/classifications/`;
   private classificationSelected = new Subject<ClassificationDefinition>();
   private classificationSaved = new Subject<number>();
+  private dataObs$ = new ReplaySubject<Array<Classification>>(1);
 
   constructor(
     private httpClient: HttpClient,
@@ -28,15 +29,21 @@ export class ClassificationsService {
   }
 
   // GET
-  getClassifications(): Observable<Array<Classification>> {
-    return this.domainService.getSelectedDomain().pipe(
-      mergeMap(domain => {
-        return this.getClassificationObservable(this.httpClient.get<ClassificationResource>(
-          `${this.url}${TaskanaQueryParameters.getQueryParameters(this.classificationParameters(domain))}`));
-
-      }),
-      tap(() => { this.domainService.domainChangedComplete(); })
-    )
+  getClassifications(forceRefresh = false): Observable<Array<Classification>> {
+    let result;
+    if (!this.dataObs$.observers.length || forceRefresh) {
+        result = this.domainService.getSelectedDomain().pipe(
+        mergeMap(domain => {
+          return this.getClassificationObservable(this.httpClient.get<ClassificationResource>(
+            `${this.url}${TaskanaQueryParameters.getQueryParameters(this.classificationParameters(domain))}`));
+        }),
+        tap(() => { this.domainService.domainChangedComplete(); })
+      )
+      result.subscribe(value => {
+        this.dataObs$.next(value)
+      })
+    }
+    return this.dataObs$;
   }
 
   // GET
@@ -79,6 +86,22 @@ export class ClassificationsService {
 
   classificationSavedTriggered(): Observable<number> {
     return this.classificationSaved.asObservable();
+  }
+
+  getClassificationsAsList(): Array<Classification> {
+    const classificationResultList = [];
+    this.getClassifications().subscribe(classificationList => {
+      classificationList.forEach(value => {
+        const classification: any = value;
+        classificationResultList.push(classification);
+        if (classification.children) {
+          classification.children.forEach(children => {
+            classificationResultList.push(children);
+          })
+        }
+      })
+    });
+    return classificationResultList;
   }
 
   // #endregion
